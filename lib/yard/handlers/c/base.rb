@@ -76,16 +76,8 @@ module YARD
 
         def ensure_variable_defined!(var, max_retries = 1)
           object = namespace_for_variable(var)
-          return object unless object.is_a?(Proxy)
-
-          log.debug "Missing object #{object} in file `#{parser.file}', moving it to the back of the line."
-
-          if globals.ordered_parser
-            retryable_file = parser.file == "(stdin)" ? StringIO.new("void Init_Foo() { #{statement.source} }") : parser.file
-            globals.ordered_parser.files_to_retry << retryable_file
-          end
-
-          raise NamespaceMissingError, object
+          ensure_loaded!(object, max_retries) if object.is_a?(Proxy)
+          object
         end
 
         def namespaces
